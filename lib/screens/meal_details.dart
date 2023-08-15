@@ -1,20 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals_app/models/meal.dart';
+import 'package:meals_app/provider/favourite_provider.dart';
 
-class MealDetailsScreen extends StatelessWidget {
+class MealDetailsScreen extends ConsumerWidget {
   final Meal meal;
-  final void Function(Meal meal) toggleFavouriteMeals;
-  const MealDetailsScreen(
-      {super.key, required this.meal, required this.toggleFavouriteMeals});
+  // final void Function(Meal meal) toggleFavouriteMeals;
+  const MealDetailsScreen({
+    super.key,
+    required this.meal,
+    // required this.toggleFavouriteMeals,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
         appBar: AppBar(
           title: Text(meal.title),
           actions: [
             IconButton(
-                onPressed: () => toggleFavouriteMeals(meal),
+                onPressed: () {
+                  // toggleFavouriteMeals(meal);
+
+                  // we should set a value for reading instead of watching because it will be problematic in
+                  // this type also we should call the notifier method to get access to the inside method
+                  bool isAdded = ref
+                      .read(favouriteMealsProvider.notifier)
+                      .toggleFavouriteMeals(meal);
+
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(isAdded ? "Meal added" : "Meal removed"),
+                  ));
+                },
                 icon: Icon(Icons.star))
           ],
         ),

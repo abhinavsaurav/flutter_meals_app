@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:meals_app/provider/filters_provider.dart';
 import 'package:meals_app/screens/meals.dart';
 import 'package:meals_app/screens/tabs.dart';
 import 'package:meals_app/widgets/main_drawer.dart';
 
-enum Filter {
-  gluttenFree,
-  lactoseFree,
-  vegetarian,
-  vegan,
-}
+// enum Filter {
+//   gluttenFree,
+//   lactoseFree,
+//   vegetarian,
+//   vegan,
+// }
 
-class FiltersScreen extends StatefulWidget {
-  Map<Filter, bool> appliedFilters;
-  FiltersScreen({super.key, required this.appliedFilters});
+class FiltersScreen extends ConsumerStatefulWidget {
+  // Map<Filter, bool> appliedFilters;
+  FiltersScreen({
+    super.key,
+    // required this.appliedFilters,
+  });
 
   @override
-  State<FiltersScreen> createState() {
+  ConsumerState<FiltersScreen> createState() {
     return _FiltersScreenState();
   }
 }
 
-class _FiltersScreenState extends State<FiltersScreen> {
+class _FiltersScreenState extends ConsumerState<FiltersScreen> {
   bool _gluttenFreeState = false;
   bool _lactoseFreeState = false;
   bool _vegetarianState = false;
@@ -28,12 +33,18 @@ class _FiltersScreenState extends State<FiltersScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _gluttenFreeState = widget.appliedFilters[Filter.gluttenFree]!;
-    _lactoseFreeState = widget.appliedFilters[Filter.lactoseFree]!;
-    _vegetarianState = widget.appliedFilters[Filter.vegetarian]!;
-    _veganState = widget.appliedFilters[Filter.vegan]!;
+    final activeFilters = ref.read(filtersProvider);
+    // _gluttenFreeState = widget.appliedFilters[Filter.gluttenFree]!;
+    // _lactoseFreeState = widget.appliedFilters[Filter.lactoseFree]!;
+    // _vegetarianState = widget.appliedFilters[Filter.vegetarian]!;
+    // _veganState = widget.appliedFilters[Filter.vegan]!;
+
+    // the above is alternative approach w/o the state-management package
+    _gluttenFreeState = activeFilters[Filter.gluttenFree]!;
+    _lactoseFreeState = activeFilters[Filter.lactoseFree]!;
+    _vegetarianState = activeFilters[Filter.vegetarian]!;
+    _veganState = activeFilters[Filter.vegan]!;
   }
 
   @override
@@ -54,13 +65,22 @@ class _FiltersScreenState extends State<FiltersScreen> {
       // ),
       body: WillPopScope(
         onWillPop: () async {
-          Navigator.of(context).pop({
+          // Navigator.of(context).pop({
+          //   Filter.gluttenFree: _gluttenFreeState,
+          //   Filter.lactoseFree: _lactoseFreeState,
+          //   Filter.vegetarian: _vegetarianState,
+          //   Filter.vegan: _veganState,
+          // });
+          // return false;
+          ref.read(filtersProvider.notifier).setFilters({
             Filter.gluttenFree: _gluttenFreeState,
             Filter.lactoseFree: _lactoseFreeState,
             Filter.vegetarian: _vegetarianState,
             Filter.vegan: _veganState,
           });
-          return false;
+
+          // since we are not popping now manually so we turn it to true
+          return true;
         },
         child: Column(children: [
           SwitchListTile(

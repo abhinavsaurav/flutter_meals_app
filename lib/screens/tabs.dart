@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meals_app/data/dummy_data.dart';
 import 'package:meals_app/models/meal.dart';
+import 'package:meals_app/provider/favourite_provider.dart';
+import 'package:meals_app/provider/filters_provider.dart';
 import 'package:meals_app/provider/meal_provider.dart';
 import 'package:meals_app/screens/Filters.dart';
 import 'package:meals_app/screens/categories.dart';
@@ -28,8 +30,8 @@ class TabsScreen extends ConsumerStatefulWidget {
 
 class _TabsScreenState extends ConsumerState<TabsScreen> {
   int activePageIndex = 0;
-  List<Meal> favouriteMeals = [];
-  Map<Filter, bool> _selectedFilters = kInitialFilter;
+  // List<Meal> favouriteMeals = [];
+  // Map<Filter, bool> _selectedFilters = kInitialFilter;
 
   void _selectPage(value) {
     setState(() {
@@ -37,46 +39,47 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     });
   }
 
-  void _showInfoMessage(String infoMessage) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(infoMessage),
-    ));
-  }
+  // void _showInfoMessage(String infoMessage) {
+  //   ScaffoldMessenger.of(context).clearSnackBars();
+  //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //     content: Text(infoMessage),
+  //   ));
+  // }
 
-  void toggleFavouriteMeals(Meal meal) {
-    if (favouriteMeals.contains(meal)) {
-      setState(() {
-        favouriteMeals.remove(meal);
-      });
-      _showInfoMessage("meal removed");
-    } else {
-      setState(() {
-        favouriteMeals.add(meal);
-      });
-      _showInfoMessage("meal added to favs");
-    }
-  }
+  // void toggleFavouriteMeals(Meal meal) {
+  //   if (favouriteMeals.contains(meal)) {
+  //     setState(() {
+  //       favouriteMeals.remove(meal);
+  //     });
+  //     _showInfoMessage("meal removed");
+  //   } else {
+  //     setState(() {
+  //       favouriteMeals.add(meal);
+  //     });
+  //     _showInfoMessage("meal added to favs");
+  //   }
+  // }
 
   void _setScreen(String identifier) async {
     Navigator.of(context).pop();
 
     if (identifier == 'filters') {
-      final result = await Navigator.push<Map<Filter, bool>>(
+      // final result =
+      await Navigator.push<Map<Filter, bool>>(
         context,
         MaterialPageRoute(
           builder: (context) {
             return FiltersScreen(
-              appliedFilters: _selectedFilters,
-            );
+                // appliedFilters: _selectedFilters,
+                );
           },
         ),
       );
 
-      // ! FUTURE null value scneario handing
-      setState(() {
-        _selectedFilters = result ?? _selectedFilters;
-      });
+      // // ! FUTURE null value scneario handing
+      // setState(() {
+      //   _selectedFilters = result ?? _selectedFilters;
+      // });
       // print(result);
     }
   }
@@ -84,6 +87,8 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
   @override
   Widget build(BuildContext context) {
     final meals = ref.watch(mealsProvider);
+    final _selectedFilters = ref.watch(filtersProvider);
+
     final List<Meal> availableMeals = meals.where((item) {
       if (_selectedFilters[Filter.gluttenFree]! && !item.isGlutenFree) {
         return false;
@@ -101,15 +106,16 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
       return true;
     }).toList();
     Widget activePage = CategoriesScreen(
-      toggleFavouriteMeals: toggleFavouriteMeals,
+      // toggleFavouriteMeals: toggleFavouriteMeals,
       availableMeal: availableMeals,
     );
     String activePageTitle = "Categories";
 
     if (activePageIndex == 1) {
+      final favouriteMealFromRP = ref.watch(favouriteMealsProvider);
       activePage = MealsScreen(
-        meals: favouriteMeals,
-        toggleFavouriteMeals: toggleFavouriteMeals,
+        meals: favouriteMealFromRP,
+        // toggleFavouriteMeals: toggleFavouriteMeals,
       );
       activePageTitle = "Your Favourites";
     }
