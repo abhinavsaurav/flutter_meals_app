@@ -84,11 +84,24 @@ class _CategoriesScreenState extends State<CategoriesScreen>
         ],
       ),
       // ! the return value is the one which will be animated based on the specified value
-      builder: (context, child) => Padding(
-        padding: EdgeInsets.only(
-          top: 100 - _animationController.value * 100,
+      builder: (context, child) => SlideTransition(
+        // ! Another way or alternative here the drive method takes in a tween class
+        // ! which basically is responsible for converting the lower and upper bounds
+        // ! and to the defined offset in (x,y)
+        // position: _animationController.drive(Tween(
+        //   // 0.3 means 30%
+        //   begin: const Offset(0, 0.3),
+        //   end: const Offset(0, 0),
+        // )),
+        position: Tween(
+          // 0.3 means 30%
+          begin: const Offset(0, 0.3),
+          end: const Offset(0, 0),
+        ).animate(
+          // ! using animate we can get control mover over our animation and how its played back
+          CurvedAnimation(
+              parent: _animationController, curve: Curves.bounceInOut),
         ),
-        // ! child is the child supplied above in child which we are receving here
         child: child,
       ),
     );
