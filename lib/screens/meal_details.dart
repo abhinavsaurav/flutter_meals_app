@@ -36,7 +36,33 @@ class MealDetailsScreen extends ConsumerWidget {
                   content: Text(isAdded ? "Meal added" : "Meal removed"),
                 ));
               },
-              icon: Icon(isFavourite ? Icons.star : Icons.star_border),
+              icon: AnimatedSwitcher(
+                duration: const Duration(seconds: 1),
+                transitionBuilder: (child, animation) {
+                  // this function should return a transition widget
+                  return RotationTransition(
+                    turns: Tween<double>(begin: 0.8, end: 1).animate(animation),
+                    // ! the child passed here is the child passed to the animated switcher
+                    // ! also we should set the key prop in child to know that the
+                    child: child,
+                  );
+                  // return RotationTransition(
+                  //   turns: animation,
+                  //   // ! the child passed here is the child passed to the animated switcher
+                  //   // ! also we should set the key prop in child to know that the
+                  //   child: child,
+                  // );
+                  // return SlideTransition(
+                  //   position: Tween(begin: Offset(0, 0.8), end: Offset(0, 0))
+                  //       .animate(animation),
+                  //   child: child,
+                  // );
+                },
+                child: Icon(
+                  isFavourite ? Icons.star : Icons.star_border,
+                  key: ValueKey(isFavourite),
+                ),
+              ),
             ),
           ],
         ),
