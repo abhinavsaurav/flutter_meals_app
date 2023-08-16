@@ -6,16 +6,47 @@ import 'package:meals_app/screens/Filters.dart';
 import 'package:meals_app/screens/meals.dart';
 import 'package:meals_app/widgets/category_grid_item.dart';
 
-class CategoriesScreen extends StatelessWidget {
-  // final void Function(Meal meal) toggleFavouriteMeals;
+class CategoriesScreen extends StatefulWidget {
   final List<Meal> availableMeal;
-  const CategoriesScreen(
-      {super.key,
-      // required this.toggleFavouriteMeals,
-      required this.availableMeal});
+  const CategoriesScreen({super.key, required this.availableMeal});
+
+  @override
+  State<CategoriesScreen> createState() => _CategoriesScreenState();
+}
+
+class _CategoriesScreenState extends State<CategoriesScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(
+        milliseconds: 300,
+      ),
+      // the bounds control b/w what values the  flutter will animate
+      lowerBound: 0,
+      upperBound: 1,
+    );
+
+    // ! We can start and stop the animation like below
+    // ! and it provides us with various options
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    // this makes sure that the animation is removed from the
+    // device memory when the animation controller is removed
+    _animationController.dispose();
+    super.dispose();
+  }
 
   void _selectCategory(BuildContext context, Category category) {
-    List<Meal> filteredList = availableMeal
+    List<Meal> filteredList = widget.availableMeal
         .where((meal) => meal.categories.contains(category.id))
         .toList();
 
@@ -24,7 +55,6 @@ class CategoriesScreen extends StatelessWidget {
         return MealsScreen(
           title: category.id,
           meals: filteredList,
-          // toggleFavouriteMeals: toggleFavouriteMeals,
         );
       },
     ));
@@ -32,23 +62,35 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 3 / 2,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
+    return AnimatedBuilder(
+      // _animationController is a listenable object
+      animation: _animationController,
+      child: GridView(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 3 / 2,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+        ),
+        children: [
+          for (final Category category in availableCategories)
+            CategoryGridItem(
+              category: category,
+              onTap: () {
+                _selectCategory(context, category);
+              },
+            )
+        ],
       ),
-      children: [
-        for (final Category category in availableCategories)
-          CategoryGridItem(
-            category: category,
-            onTap: () {
-              _selectCategory(context, category);
-            },
-          )
-      ],
+      // ! the return value is the one which will be animated based on the specified value
+      builder: (context, child) => Padding(
+        padding: EdgeInsets.only(
+          top: 100 - _animationController.value * 100,
+        ),
+        // ! child is the child supplied above in child which we are receving here
+        child: child,
+      ),
     );
   }
 }
